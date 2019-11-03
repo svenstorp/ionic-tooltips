@@ -4,12 +4,13 @@ import {
   ComponentFactoryResolver,
   ComponentRef,
   Directive,
+  EmbeddedViewRef,
   ElementRef,
   HostListener,
+  Injector,
   Input,
   OnDestroy,
   OnInit,
-  ViewContainerRef,
 } from '@angular/core';
 import { Platform } from '@ionic/angular';
 
@@ -81,10 +82,10 @@ export class TooltipDirective implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private el: ElementRef,
     private appRef: ApplicationRef,
+    private injector: Injector,
     private platform: Platform,
     private cfr: ComponentFactoryResolver,
     private tooltipCtrl: TooltipController,
-    private vcr: ViewContainerRef,
   ) {
   }
 
@@ -205,8 +206,10 @@ export class TooltipDirective implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private _createTooltipComponent() {
-    const componentFactory = this.cfr.resolveComponentFactory(TooltipBox);
-    this.tooltipElement = this.vcr.createComponent(componentFactory);
+    this.tooltipElement = this.cfr.resolveComponentFactory(TooltipBox).create(this.injector);
+    this.appRef.attachView(this.tooltipElement.hostView);
+    const domElem = (this.tooltipElement.hostView as EmbeddedViewRef < any > ).rootNodes[0] as HTMLElement;
+    document.body.appendChild(domElem);
     this.tooltipCtrl.addTooltip(this);
   }
 
@@ -287,6 +290,7 @@ export class TooltipDirective implements OnInit, AfterViewInit, OnDestroy {
         this.tooltipElement &&
         typeof this.tooltipElement.destroy === 'function'
       ) {
+        this.appRef.detachView(this.tooltipElement.hostView);
         this.tooltipElement.destroy();
       }
       this.tooltipCtrl.removeTooltip(this);
