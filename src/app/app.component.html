@@ -1,3 +1,17 @@
 <ion-app>
-  <ion-router-outlet></ion-router-outlet>
+  <ion-split-pane [when]="splitPlaneEnabled" contentId="main-content">
+    <ion-menu class="mainMenu" contentId="main-content">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title [hidden]="splitPlaneEnabled">Menu</ion-title>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content>
+        Example menu
+      </ion-content>
+
+    </ion-menu>
+    <ion-router-outlet id="main-content"></ion-router-outlet>
+  </ion-split-pane>
 </ion-app>
